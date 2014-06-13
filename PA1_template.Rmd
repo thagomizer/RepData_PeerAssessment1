@@ -2,7 +2,20 @@
 
 
 ## Loading and preprocessing the data
+```{r}
+if (!file.exists("activity.zip")) {
+  download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", destfile = "activity.zip", method = "curl")
+  }
 
+if (!file.exists("activity.csv")) {
+  unzip ("activity.zip")
+  }
+
+activity <- read.csv("activity.csv")
+
+head(activity)
+
+```
 
 
 ## What is mean total number of steps taken per day?
