@@ -1,6 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-
 ## Loading and preprocessing the data
 
 ```r
@@ -38,8 +37,8 @@ hist(stepsByDay$steps,
 
 
 ```r
-totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE))
-totalStepsMedian <- median(stepsByDay$steps, na.rm=TRUE)
+totalStepsMean <- as.character(round(mean(stepsByDay$steps, na.rm=TRUE)))
+totalStepsMedian <- as.character(median(stepsByDay$steps, na.rm=TRUE))
 ```
 
 The mean number of steps taken per day is 9354.
@@ -69,6 +68,53 @@ The maximum number of steps in a 5 minute interval was taken on 2012-11-27 durin
 
 ## Imputing missing values
 
+
+```r
+naCount <- sum(is.na(activity$steps))
+```
+
+There are 2304 missing step values in the data set.
+
+
+```r
+row.names(stepsByInterval) = stepsByInterval$interval
+
+activityExtrapolated <- activity
+
+for (i in 1:nrow(activityExtrapolated)) {
+  if (is.na(activityExtrapolated[i,"steps"])) {
+    interval <- toString(activityExtrapolated[i, "interval"])
+    activityExtrapolated[i,"steps"] <- stepsByInterval[interval, "steps"]
+  }
+}
+
+stepsByDayExtrapolated <- aggregate(activityExtrapolated$steps,
+                               by=list(activityExtrapolated$date),
+                               FUN=sum)
+names(stepsByDayExtrapolated) <- c("date", "steps")
+```
+
+```r
+hist(stepsByDayExtrapolated$steps,
+     breaks = 20,
+     main = "Histogram of total steps taken per day",
+     xlab = "Total Steps")
+```
+
+![plot of chunk histogramWithExtrapolated](figure/histogramWithExtrapolated.png) 
+
+
+```r
+totalStepsExtrapolatedMean <- as.character(round(mean(stepsByDayExtrapolated$steps, na.rm=TRUE)))
+totalStepsExtrapolatedMedian <- as.charater(median(stepsByDayExtrapolated$steps, na.rm=TRUE))
+```
+
+```
+## Error: could not find function "as.charater"
+```
+
+The mean number of steps taken per day is 10766.
+The median number of steps taken per day is 1.0766 &times; 10<sup>4</sup>.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?

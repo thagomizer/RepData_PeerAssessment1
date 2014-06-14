@@ -1,6 +1,5 @@
 # Reproducible Research: Peer Assessment 1
 
-
 ## Loading and preprocessing the data
 ```{r}
 
@@ -37,7 +36,7 @@ hist(stepsByDay$steps,
 
 ```{r mean_median}
 
-totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE))
+totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE)
 totalStepsMedian <- median(stepsByDay$steps, na.rm=TRUE)
 
 ```
@@ -90,8 +89,30 @@ for (i in 1:nrow(activityExtrapolated)) {
   }
 }
 
+stepsByDayExtrapolated <- aggregate(activityExtrapolated$steps,
+                               by=list(activityExtrapolated$date),
+                               FUN=sum)
+names(stepsByDayExtrapolated) <- c("date", "steps")
+
+
+```
+```{r histogramWithExtrapolated, fig.height=6}
+hist(stepsByDayExtrapolated$steps,
+     breaks = 20,
+     main = "Histogram of total steps taken per day",
+     xlab = "Total Steps")
+
 ```
 
+```{r mean_median_extrapolated}
+
+totalStepsExtrapolatedMean <- round(mean(stepsByDayExtrapolated$steps, na.rm=TRUE))
+totalStepsExtrapolatedMedian <- median(stepsByDayExtrapolated$steps, na.rm=TRUE)
+
+```
+
+The mean number of steps taken per day is `r totalStepsExtrapolatedMean`.
+The median number of steps taken per day is `r totalStepsExtrapolatedMedian`.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
