@@ -89,6 +89,8 @@ naCount <- sum(is.na(activity$steps))
 
 There are `r naCount` missing step values in the data set.
 
+I will fill in the missing values with the average number of steps taken in that time interval on the days where there is data reported.
+
 ```{r fillInMissingValues}
 
 row.names(stepsByInterval) = stepsByInterval$interval
