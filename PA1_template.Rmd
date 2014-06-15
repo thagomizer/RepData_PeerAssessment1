@@ -2,6 +2,7 @@
 
 ## Loading and preprocessing the data
 ```{r}
+library(lubridate)
 
 if (!file.exists("activity.zip")) {
   download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
@@ -17,11 +18,18 @@ activity <- read.csv("activity.csv")
 
 activity[, "clean_date"] <- as.Date(strptime(activity[, "date"], format='%Y-%m-%d'))
 
+timestamp <- strptime(sprintf("%s %04d",
+                              activity[,"date"],
+                              activity[,"interval"]),
+                              format="%Y-%m-%d %H%M")
+time <- strftime(timestamp, format="%H:%M")
+activity <- cbind(activity, timestamp, time)
+
 stepsByDay <- aggregate(activity$steps, by=list(activity$date), FUN=sum, na.rm=TRUE)
 names(stepsByDay) <- c("date", "steps")
 
-stepsByInterval = aggregate(activity$steps, by=list(activity$interval), FUN=mean, na.rm=TRUE)
-names(stepsByInterval) <- c("interval", "steps")
+stepsByInterval = aggregate(activity$steps, by=list(activity$time), FUN=mean, na.rm=TRUE)
+names(stepsByInterval) <- c("timestamp", "steps")
 
 ```
 
@@ -36,7 +44,7 @@ hist(stepsByDay$steps,
 
 ```{r mean_median}
 
-totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE)
+totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE))
 totalStepsMedian <- median(stepsByDay$steps, na.rm=TRUE)
 
 ```
@@ -48,11 +56,11 @@ The median number of steps taken per day is `r totalStepsMedian`.
 ## What is the average daily activity pattern?
 ```{r dailyPlot, fig.height=6}
 
-plot(stepsByInterval$interval,
+plot(stepsByInterval$timestamp,
      stepsByInterval$steps,
      type="l",
      main="Daily Activity Pattern",
-     xlab = "Time Interval",
+     xlab = "Time",
      ylab = "Steps")
     
 ```
@@ -63,7 +71,7 @@ maxStepRow <- activity[which(activity[, 1] == max(activity$steps, na.rm = TRUE))
 
 ```
 
-The maximum number of steps in a 5 minute interval was taken on `r maxStepRow$date` during the interval `r maxStepRow$interval`
+The maximum number of steps in a 5 minute interval was taken on `r maxStepRow$date` during the interval starting at `r maxStepRow$time`
 
 
 ## Imputing missing values

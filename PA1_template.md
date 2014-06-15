@@ -3,6 +3,8 @@
 ## Loading and preprocessing the data
 
 ```r
+library(lubridate)
+
 if (!file.exists("activity.zip")) {
   download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
                 destfile = "activity.zip",
@@ -17,11 +19,18 @@ activity <- read.csv("activity.csv")
 
 activity[, "clean_date"] <- as.Date(strptime(activity[, "date"], format='%Y-%m-%d'))
 
+timestamp <- strptime(sprintf("%s %04d",
+                              activity[,"date"],
+                              activity[,"interval"]),
+                              format="%Y-%m-%d %H%M")
+time <- strftime(timestamp, format="%H:%M")
+activity <- cbind(activity, timestamp, time)
+
 stepsByDay <- aggregate(activity$steps, by=list(activity$date), FUN=sum, na.rm=TRUE)
 names(stepsByDay) <- c("date", "steps")
 
-stepsByInterval = aggregate(activity$steps, by=list(activity$interval), FUN=mean, na.rm=TRUE)
-names(stepsByInterval) <- c("interval", "steps")
+stepsByInterval = aggregate(activity$steps, by=list(activity$time), FUN=mean, na.rm=TRUE)
+names(stepsByInterval) <- c("timestamp", "steps")
 ```
 
 ## What is mean total number of steps taken per day?
@@ -37,8 +46,8 @@ hist(stepsByDay$steps,
 
 
 ```r
-totalStepsMean <- as.character(round(mean(stepsByDay$steps, na.rm=TRUE)))
-totalStepsMedian <- as.character(median(stepsByDay$steps, na.rm=TRUE))
+totalStepsMean <- round(mean(stepsByDay$steps, na.rm=TRUE))
+totalStepsMedian <- median(stepsByDay$steps, na.rm=TRUE)
 ```
 
 The mean number of steps taken per day is 9354.
@@ -48,11 +57,11 @@ The median number of steps taken per day is 10395.
 ## What is the average daily activity pattern?
 
 ```r
-plot(stepsByInterval$interval,
+plot(stepsByInterval$timestamp,
      stepsByInterval$steps,
      type="l",
      main="Daily Activity Pattern",
-     xlab = "Time Interval",
+     xlab = "Time",
      ylab = "Steps")
 ```
 
@@ -63,7 +72,7 @@ plot(stepsByInterval$interval,
 maxStepRow <- activity[which(activity[, 1] == max(activity$steps, na.rm = TRUE)), ]
 ```
 
-The maximum number of steps in a 5 minute interval was taken on 2012-11-27 during the interval 615
+The maximum number of steps in a 5 minute interval was taken on 2012-11-27 during the interval 06:15
 
 
 ## Imputing missing values
@@ -105,16 +114,12 @@ hist(stepsByDayExtrapolated$steps,
 
 
 ```r
-totalStepsExtrapolatedMean <- as.character(round(mean(stepsByDayExtrapolated$steps, na.rm=TRUE)))
-totalStepsExtrapolatedMedian <- as.charater(median(stepsByDayExtrapolated$steps, na.rm=TRUE))
+totalStepsExtrapolatedMean <- round(mean(stepsByDayExtrapolated$steps, na.rm=TRUE))
+totalStepsExtrapolatedMedian <- median(stepsByDayExtrapolated$steps, na.rm=TRUE)
 ```
 
-```
-## Error: could not find function "as.charater"
-```
-
-The mean number of steps taken per day is 10766.
-The median number of steps taken per day is 1.0766 &times; 10<sup>4</sup>.
+The mean number of steps taken per day is 1.0766 &times; 10<sup>4</sup>.
+The median number of steps taken per day is 1.0765 &times; 10<sup>4</sup>.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
